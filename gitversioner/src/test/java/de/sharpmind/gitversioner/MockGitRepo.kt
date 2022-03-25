@@ -1,4 +1,4 @@
-package com.pascalwelsch.gitversioner
+package de.sharpmind.gitversioner
 
 data class Commit(
     val sha1: String,

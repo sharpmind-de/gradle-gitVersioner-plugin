@@ -1,4 +1,4 @@
-package com.pascalwelsch.gitversioner
+package de.sharpmind.gitversioner
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal

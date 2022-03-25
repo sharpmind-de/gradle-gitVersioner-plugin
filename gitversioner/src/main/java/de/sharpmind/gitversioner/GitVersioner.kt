@@ -1,6 +1,6 @@
 @file:Suppress("RedundantVisibilityModifier")
 
-package com.pascalwelsch.gitversioner
+package de.sharpmind.gitversioner
 
 import org.gradle.api.logging.Logger
 import java.util.concurrent.TimeUnit

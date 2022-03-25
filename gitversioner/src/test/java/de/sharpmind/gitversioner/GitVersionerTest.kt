@@ -1,4 +1,4 @@
-package com.pascalwelsch.gitversioner
+package de.sharpmind.gitversioner
 
 import org.assertj.core.api.Assertions.*
 import org.assertj.core.api.SoftAssertions.assertSoftly

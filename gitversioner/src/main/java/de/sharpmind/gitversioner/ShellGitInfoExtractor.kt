@@ -1,4 +1,4 @@
-package com.pascalwelsch.gitversioner
+package de.sharpmind.gitversioner
 
 import org.gradle.api.GradleException
 import org.gradle.api.Project

@@ -1,4 +1,4 @@
-package com.pascalwelsch.gitversioner
+package de.sharpmind.gitversioner
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -11,7 +11,7 @@ public class GitVersionerPlugin : Plugin<Project> {
         val rootProject = project.rootProject
         if (project != rootProject) {
             throw IllegalStateException(
-                "Register the 'com.pascalwelsch.gitversioner' plugin only once " +
+                "Register the 'de.sharpmind.gitversioner' plugin only once " +
                         "in the root project build.gradle."
             )
         }
@@ -33,7 +33,7 @@ public class GitVersionerPlugin : Plugin<Project> {
 
                         val why = if (gitVersioner.isHistoryShallowed) {
                             "WARNING: Git history is incomplete (shallow clone)\n" +
-                                    "The com.pascalwelsch.gitversioner gradle plugin requires the complete git history to calculate " +
+                                    "The de.sharpmind.gitversioner gradle plugin requires the complete git history to calculate " +
                                     "the version. The history is shallowed, therefore the version code would be incorrect.\n" +
                                     "Default values versionName: 'undefined', versionCode: 1 are used instead.\n\n" +
                                     "Please fetch the complete history with:\n" +

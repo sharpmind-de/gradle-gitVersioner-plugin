@@ -28,21 +28,22 @@ dependencies {
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
+tasks.register('javadocJar', Jar) {
+    archiveClassifier = 'javadoc'
     from javadoc
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
+tasks.register('sourcesJar', Jar) {
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task saveVersionToResources(type: WriteProperties) {
+tasks.register('saveVersionToResources', WriteProperties) {
     comment = "gitversioner gradle plugin version"
     property('version', version)
     outputFile = file(sourceSets.main.output.resourcesDir.absolutePath + "/version.properties")
 }
+
 processResources.dependsOn(saveVersionToResources)
 
 artifacts {

@@ -3,7 +3,10 @@ package de.sharpmind.gitversioner
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.SourceSetContainer
 import java.util.*
+
 
 @Suppress("RedundantVisibilityModifier")
 public class GitVersionerPlugin : Plugin<Project> {
@@ -97,8 +100,15 @@ public class GitVersionerPlugin : Plugin<Project> {
             description = "analyzes the git history and creates a version name (generates machine readable output file)"
         }
 
-        project.plugins.withType(JavaPlugin::class.java) {
-            project.tasks.named(JavaPlugin.CLASSES_TASK_NAME).configure {
+        project.plugins.withType(JavaPlugin::class.java) { javaPlugin ->
+            val sourceSets = project.extensions.getByType(SourceSetContainer::class.java)
+            val main = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+
+            val file = project.file("${project.buildDir}/gitversioner/version.properties")
+            val dir = file.parentFile
+            main.resources.setSrcDirs(listOf(dir.absolutePath))
+
+            project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).configure {
                 it.dependsOn(task)
             }
         }

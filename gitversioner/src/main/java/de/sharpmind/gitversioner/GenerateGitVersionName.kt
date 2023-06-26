@@ -12,7 +12,7 @@ internal open class GenerateGitVersionName : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        val file = project.file("${project.buildDir}/resources/main/version.properties")
+        val file = project.file("${project.buildDir}/gitversioner/version.properties")
         file.parentFile.mkdirs()
 
         val properties = Properties().apply {

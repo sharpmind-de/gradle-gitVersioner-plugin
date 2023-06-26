@@ -1,3 +1,5 @@
+forked as the original project seems to be abondoned
+
 # Git Versioner for gradle
 
 Version numbers are hard. 

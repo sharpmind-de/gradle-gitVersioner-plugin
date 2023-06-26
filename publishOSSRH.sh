@@ -7,4 +7,4 @@ echo "signing.keyId"
 echo "signing.password"
 echo "signing.secretKeyRingFile"
 
-./gradlew clean build publishAllPublicationsToOSSRHRepository
+./gradlew clean build publish

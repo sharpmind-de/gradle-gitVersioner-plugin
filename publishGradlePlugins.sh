@@ -1,2 +1,3 @@
 echo "Publishing to Gradle Plugins Repository"
-./gradlew clean build publishPlugins
+echo "currently disabled"
+#./gradlew clean build publishPlugins

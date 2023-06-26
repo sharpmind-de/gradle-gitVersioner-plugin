@@ -1,8 +1,10 @@
 plugins {
     id "java-gradle-plugin"
-    id 'com.gradle.plugin-publish' version '1.1.0'
+    //id 'com.gradle.plugin-publish' version '1.1.0'
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
     id 'java-library'
+    id 'maven-publish'
+    id 'signing'
 }
 
 group = 'de.sharpmind'
@@ -57,6 +59,70 @@ gradlePlugin {
             implementationClass = 'de.sharpmind.gitversioner.GitVersionerPlugin'
             tags.addAll('git', 'properties', 'version')
         }
+    }
+
+    automatedPublishing = false
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = "${project.group}"
+            artifactId = "${project.name}"
+            version = "${project.version}"
+
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'Gradle GIT Versioner'
+                description = 'Determine project version from git.'
+                url = 'https://github.com/sharpmind-de/gradle-gitVersioner-plugin'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'stolzem'
+                        name = 'Marco Stolze'
+                        email = 'marco@sharpmind.de'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/sharpmind-de/gradle-gitVersioner-plugin.git'
+                    developerConnection = 'scm:git:https://github.com/sharpmind-de/gradle-gitVersioner-plugin.git'
+                    url = 'https://github.com/sharpmind-de/gradle-gitVersioner-plugin'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = project.findProperty('OSSRH_USERNAME') ?: System.getenv("OSSRH_USERNAME")
+                password = project.findProperty('OSSRH_PASSWORD') ?: System.getenv("OSSRH_PASSWORD")
+            }
+        }
+    }
+}
+
+signing {
+    if (project.hasProperty('signing.keyId') &&
+            project.hasProperty('signing.password') &&
+            project.hasProperty('signing.secretKeyRingFile')) {
+        sign publishing.publications.maven
     }
 }
 

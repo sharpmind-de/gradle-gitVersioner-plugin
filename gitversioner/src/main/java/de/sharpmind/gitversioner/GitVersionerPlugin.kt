@@ -2,7 +2,8 @@ package de.sharpmind.gitversioner
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.util.Properties
+import org.gradle.api.plugins.JavaPlugin
+import java.util.*
 
 @Suppress("RedundantVisibilityModifier")
 public class GitVersionerPlugin : Plugin<Project> {
@@ -89,13 +90,17 @@ public class GitVersionerPlugin : Plugin<Project> {
             }
         }
 
-
-        project.tasks.create("generateGitVersionName", GenerateGitVersionName::class.java).apply {
+        val task = project.tasks.create("generateGitVersionName", GenerateGitVersionName::class.java).apply {
             this.gitVersioner = gitVersioner
 
             group = "Build"
-            description =
-                "analyzes the git history and creates a version name (generates machine readable output file)"
+            description = "analyzes the git history and creates a version name (generates machine readable output file)"
+        }
+
+        project.plugins.withType(JavaPlugin::class.java) {
+            project.tasks.named(JavaPlugin.CLASSES_TASK_NAME).configure {
+                it.dependsOn(task)
+            }
         }
     }
 

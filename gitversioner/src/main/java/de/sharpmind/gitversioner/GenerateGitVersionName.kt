@@ -12,8 +12,7 @@ internal open class GenerateGitVersionName : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        val path = "${project.buildDir}/gitversion/gitversion.properties"
-        val file = project.file("${project.buildDir}/gitversion/version.properties")
+        val file = project.file("${project.buildDir}/resources/main/version.properties")
         file.parentFile.mkdirs()
 
         val properties = Properties().apply {
@@ -33,7 +32,7 @@ internal open class GenerateGitVersionName : DefaultTask() {
 
         properties.store(file.writer(), "gitVersioner plugin - extracted data from git repository")
         project.logger.lifecycle("git versionName: ${gitVersioner.versionName}")
-        project.logger.lifecycle("gitVersion output: $path")
+        project.logger.lifecycle("gitVersion output: $file")
     }
 }
 

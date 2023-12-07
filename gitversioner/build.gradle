@@ -1,6 +1,6 @@
 plugins {
     id "java-gradle-plugin"
-    //id 'com.gradle.plugin-publish' version '1.1.0'
+    id 'com.gradle.plugin-publish' version '1.1.0'
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
     id 'java-library'
     id 'maven-publish'
@@ -61,14 +61,14 @@ gradlePlugin {
         }
     }
 
-    automatedPublishing = false
+    automatedPublishing = true
 }
 
 artifacts {
     archives javadocJar, sourcesJar
 }
 
-publishing {
+/*publishing {
     publications {
         maven(MavenPublication) {
             groupId = "${project.group}"
@@ -116,8 +116,9 @@ publishing {
             }
         }
     }
-}
+}*/
 
+/*
 signing {
     if (project.hasProperty('signing.keyId') &&
             project.hasProperty('signing.password') &&
@@ -126,3 +127,4 @@ signing {
     }
 }
 
+*/

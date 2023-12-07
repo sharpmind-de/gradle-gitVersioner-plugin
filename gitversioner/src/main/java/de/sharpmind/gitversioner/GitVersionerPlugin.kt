@@ -21,7 +21,19 @@ public class GitVersionerPlugin : Plugin<Project> {
         }
 
         // add extension to root project, makes sense only once per project
-        val gitVersionExtractor = ShellGitInfoExtractor(rootProject)
+
+        // determine build environment
+        val isRunningInAzurePipelines = System.getenv("TF_BUILD") == "True"
+
+        // the default git info extractor
+        val shellGitInfoExtractor = ShellGitInfoExtractor(rootProject)
+
+        val gitVersionExtractor =
+            // use azure git info extractor if running in azure pipelines
+            if (isRunningInAzurePipelines) AzureGitInfoExtractor(rootProject, shellGitInfoExtractor)
+            // use shell git info extractor as default
+            else shellGitInfoExtractor
+
         val gitVersioner = rootProject.extensions.create(
             "gitVersioner",
             GitVersioner::class.java, gitVersionExtractor, project.logger
@@ -106,7 +118,8 @@ public class GitVersionerPlugin : Plugin<Project> {
 
             val file = project.file("${project.buildDir}/gitversioner/version.properties")
             val dir = file.parentFile
-            main.resources.setSrcDirs(listOf(dir.absolutePath))
+            //main.resources.srcDirs.add(dir)
+            main.resources.setSrcDirs(listOf(main.resources.srcDirs, dir))
 
             project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).configure {
                 it.dependsOn(task)

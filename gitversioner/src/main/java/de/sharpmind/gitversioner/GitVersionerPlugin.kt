@@ -23,7 +23,16 @@ public class GitVersionerPlugin : Plugin<Project> {
         // add extension to root project, makes sense only once per project
 
         // determine build environment
-        val isRunningInAzurePipelines = System.getenv("TF_BUILD") == "True"
+        // if TF_BUILD is set to true, we are running in azure pipelines
+        val isRunningInAzurePipelines = if (System.getenv("TF_BUILD") == null) {
+            false
+        } else {
+            System.getenv("TF_BUILD").uppercase() == "TRUE"
+        }
+
+        if (isRunningInAzurePipelines) {
+            println("Azure Pipeline environment detected.")
+        }
 
         // the default git info extractor
         val shellGitInfoExtractor = ShellGitInfoExtractor(rootProject)

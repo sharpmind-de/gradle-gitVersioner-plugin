@@ -14,7 +14,7 @@ public open class GitVersioner internal constructor(
     private val logger: Logger? = null
 ) {
 
-    public var baseBranch: String = "master"
+    public var baseBranch: String = "main"
 
     public var yearFactor: Int = 1000
 
@@ -259,6 +259,26 @@ public open class GitVersioner internal constructor(
         public val DEFAULT_FORMATTER: ((GitVersioner) -> CharSequence) = formatter@{ versioner ->
             with(versioner) {
                 val sb = StringBuilder(if (isHistoryShallowed) "shallowed" else versioner.versionCode.toString())
+
+                    sb.append(versioner.versionCode)
+
+                    val branchCommitCount = versioner.featureBranchCommitCount
+                    val localChangesCount = versioner.localChanges.filesChanged
+
+                    if (versioner.branchName?.let { versioner.baseBranch.compareTo(it) } != 0) {
+                        // add branch identifier and commit count
+                        sb.append(".").append(versioner.branchName).append("-").append(branchCommitCount)
+                    }
+
+                    if (localChangesCount > 0) {
+                        // add local changes count
+                        sb.append(".").append(localChangesCount)
+                    }
+
+                return@formatter sb.toString()
+
+
+               /*
                 val hasCommits = featureBranchCommitCount > 0 || baseBranchCommitCount > 0
                 if (baseBranch != branchName && (hasCommits || isHistoryShallowed)) {
                     // add branch identifier for
@@ -284,7 +304,7 @@ public open class GitVersioner internal constructor(
                         sb.append("(").append(localChanges).append(")")
                     }
                 }
-                return@formatter sb.toString()
+                return@formatter sb.toString()*/
             }
         }
 

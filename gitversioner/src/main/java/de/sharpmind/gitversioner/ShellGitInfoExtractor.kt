@@ -2,6 +2,7 @@ package de.sharpmind.gitversioner
 
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -23,22 +24,22 @@ interface GitInfoExtractor {
 internal class ShellGitInfoExtractor(private val project: Project) : GitInfoExtractor {
 
     override val currentSha1: String? by lazy {
-        val sha1 = "git rev-parse HEAD".execute().throwOnError().text.trim()
-        if (sha1.isEmpty()) null else sha1
+        val sha1 = "git rev-parse HEAD".execute().get().throwOnError().text.trim()
+        sha1.ifEmpty { null }
     }
 
     override val currentBranch: String? by lazy {
-        when (val result = "git symbolic-ref --short -q HEAD".execute()) {
+        when (val result = "git symbolic-ref --short -q HEAD".execute().get()) {
             is ProcessResult.Success -> {
                 val branch = result.text.trim()
-                if (branch.isEmpty()) null else branch
+                branch.ifEmpty { null }
             }
             is ProcessResult.Error -> null
         }
     }
 
     override val localChanges: LocalChanges by lazy {
-        val shortStat = "git diff HEAD --shortstat".execute().throwOnError().text.trim()
+        val shortStat = "git diff HEAD --shortstat".execute().get().throwOnError().text.trim()
         if (shortStat.isEmpty()) return@lazy NO_CHANGES
 
         return@lazy parseShortStats(shortStat)
@@ -46,14 +47,14 @@ internal class ShellGitInfoExtractor(private val project: Project) : GitInfoExtr
 
     override val initialCommitDate: Long by lazy {
         val initialCommit: String = commitsToHead.lastOrNull() ?: return@lazy 0L
-        val time = listOf("git", "log", "-n 1", "--pretty=format:'%at'", initialCommit).execute()
+        val time = listOf("git", "log", "-n 1", "--pretty=format:'%at'", initialCommit).execute().get()
             .throwOnError().text.replace("\'", "").trim()
 
         return@lazy if (time.isEmpty()) 0L else time.toLong()
     }
 
     override fun commitDate(rev: String): Long {
-        val time = listOf("git", "log", "--pretty=format:'%at'", "-n 1", rev).execute()
+        val time = listOf("git", "log", "--pretty=format:'%at'", "-n 1", rev).execute().get()
             .throwOnError().text.replace("\'", "").trim()
         return if (time.isEmpty()) 0 else time.toLong()
     }
@@ -61,7 +62,7 @@ internal class ShellGitInfoExtractor(private val project: Project) : GitInfoExtr
     override val commitsToHead: List<String> by lazy { commitsUpTo("HEAD") }
 
     override val isGitWorking: Boolean by lazy {
-        val result = "git status".execute()
+        val result = "git status".execute().get()
         if (result is ProcessResult.Error) {
             when (val exitCode = result.errorCode) {
                 69 -> {
@@ -89,7 +90,7 @@ internal class ShellGitInfoExtractor(private val project: Project) : GitInfoExtr
 
     override val isHistoryShallowed: Boolean by lazy {
         // returns root dir of git
-        val rootPath = "git rev-parse --show-toplevel".execute().throwOnError().text.trim()
+        val rootPath = "git rev-parse --show-toplevel".execute().get().throwOnError().text.trim()
         val shallowFile = File("$rootPath/.git/shallow")
 
         if (shallowFile.exists()) {
@@ -108,10 +109,10 @@ internal class ShellGitInfoExtractor(private val project: Project) : GitInfoExtr
 
     override fun commitsUpTo(rev: String, args: String): List<String> {
         val text = try {
-            "git rev-list $rev $args".execute().throwOnError().text
+            "git rev-list $rev $args".execute().get().throwOnError().text
         } catch (e: Exception) {
             try {
-                "git rev-list origin/$rev $args".execute().throwOnError().text
+                "git rev-list origin/$rev $args".execute().get().throwOnError().text
             } catch (e: Exception) {
                 ""
             }
@@ -120,9 +121,9 @@ internal class ShellGitInfoExtractor(private val project: Project) : GitInfoExtr
         return text.lines().asSequence().map { it.trim() }.filter { it.isNotBlank() }.toList()
     }
 
-    private fun String.execute(): ProcessResult = trim().split(" ").execute()
+    private fun String.execute(): Provider<ProcessResult> = trim().split(" ").execute()
 
-    private fun List<String>.execute(): ProcessResult {
+    private fun List<String>.execute(): Provider<ProcessResult> {
         val out = ByteArrayOutputStream()
         val err = ByteArrayOutputStream()
         val task = project.exec {
@@ -134,9 +135,13 @@ internal class ShellGitInfoExtractor(private val project: Project) : GitInfoExtr
         }
         val exitCode = task.exitValue
         return if (exitCode == 0) {
-            ProcessResult.Success(out.toString())
+            project.providers.provider {
+                ProcessResult.Success(out.toString())
+            }
         } else {
-            ProcessResult.Error(err.toString(), exitCode, this.joinToString(" "))
+            project.providers.provider {
+                ProcessResult.Error(err.toString(), exitCode, this.joinToString(" "))
+            }
         }
     }
 

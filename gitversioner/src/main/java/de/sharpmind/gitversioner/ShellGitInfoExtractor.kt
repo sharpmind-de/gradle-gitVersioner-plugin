@@ -126,14 +126,14 @@ internal class ShellGitInfoExtractor(private val project: Project) : GitInfoExtr
     private fun List<String>.execute(): Provider<ProcessResult> {
         val out = ByteArrayOutputStream()
         val err = ByteArrayOutputStream()
-        val task = project.exec {
-            it.commandLine = this@execute
-            it.standardOutput = out
-            it.errorOutput = err
-            it.workingDir = project.projectDir
-            it.isIgnoreExitValue = true
-        }
-        val exitCode = task.exitValue
+        val process = ProcessBuilder(this@execute)
+            .directory(project.projectDir)
+            .redirectErrorStream(false)
+            .start()
+        process.outputStream.close()
+        out.write(process.inputStream.readBytes())
+        err.write(process.errorStream.readBytes())
+        val exitCode = process.waitFor()
         return if (exitCode == 0) {
             project.providers.provider {
                 ProcessResult.Success(out.toString())

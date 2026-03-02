@@ -10,7 +10,6 @@ internal class AzureGitInfoExtractor(private val project: Project, delegate: Git
     /**
      * Get the current branch name from the environment variable Build.SourceBranchName
      */
-    override val currentBranch: String? by lazy {
-        return@lazy System.getenv("BUILD_SOURCEBRANCHNAME")
-    }
+    override val currentBranch: String?
+        get() = System.getenv("BUILD_SOURCEBRANCHNAME")
 }

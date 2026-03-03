@@ -7,7 +7,6 @@ import org.junit.runner.*
 import org.junit.runners.*
 import java.util.concurrent.TimeUnit
 
-/*
 @RunWith(JUnit4::class)
 class GitVersionerTest {
     @Test
@@ -840,4 +839,4 @@ class GitVersionerTest {
         }
     }
 }
-*/
+

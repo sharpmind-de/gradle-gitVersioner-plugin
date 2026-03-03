@@ -5,8 +5,6 @@ import org.junit.*
 import org.junit.runner.*
 import org.junit.runners.*
 
-/*
-
 @RunWith(JUnit4::class)
 class FeatureBranchTest {
     @Test
@@ -329,5 +327,3 @@ class FeatureBranchTest {
         }
     }
 }
-
- */

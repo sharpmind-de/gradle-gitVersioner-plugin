@@ -5,8 +5,6 @@ import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.*
 import org.junit.runner.*
 import org.junit.runners.*
-/*
-
 @RunWith(JUnit4::class)
 class ShallowCloneTest {
     @Test
@@ -344,4 +342,4 @@ class ShallowCloneTest {
         }
     }
 }
-*/
+

@@ -260,43 +260,28 @@ public open class GitVersioner internal constructor(
             with(versioner) {
                 val sb = StringBuilder(if (isHistoryShallowed) "shallowed" else versioner.versionCode.toString())
 
-                    sb.append(versioner.versionCode)
+                val branchCommitCount = versioner.featureBranchCommitCount
+                val localChangesCount = versioner.localChanges.filesChanged
 
-                    val branchCommitCount = versioner.featureBranchCommitCount
-                    val localChangesCount = versioner.localChanges.filesChanged
-
-                    if (versioner.branchName?.let { versioner.baseBranch.compareTo(it) } != 0) {
-                        // add branch identifier and commit count
-                        sb.append(".").append(versioner.branchName).append("-").append(branchCommitCount)
+                val hasCommits = versioner.baseBranchCommitCount > 0 || branchCommitCount > 0
+                if (hasCommits || versioner.isHistoryShallowed) {
+                    if (versioner.branchName?.let { versioner.baseBranch.compareTo(it) } != 0 || branchCommitCount > 0) {
+                        val shortName = try {
+                            versioner.shortNameFormatter(versioner).toString()
+                        } catch (e: Throwable) {
+                            DEFAULT_SHORT_NAME_FORMATTER(versioner).toString()
+                        }
+                        if (shortName.isNotBlank() && (shortName != "undefined" || versioner.isHistoryShallowed)) {
+                            sb.append("-").append(shortName)
+                        }
                     }
-
-                    if (localChangesCount > 0) {
-                        // add local changes count
-                        sb.append(".").append(localChangesCount)
-                    }
-
-                return@formatter sb.toString()
-
-
-               /*
-                val hasCommits = featureBranchCommitCount > 0 || baseBranchCommitCount > 0
-                if (baseBranch != branchName && (hasCommits || isHistoryShallowed)) {
-                    // add branch identifier for
-                    val shortName = try {
-                        shortNameFormatter(versioner)
-                    } catch (e: Throwable) {
-                        println("shortNameFormatter failed to generate a correct name, using default formatter")
-                        DEFAULT_SHORT_NAME_FORMATTER(versioner).toString()
-                    }
-
-                    sb.append("-").append(shortName)
                 }
 
-                val featureCount = featureBranchCommits.count()
-                if (featureCount > 0 && !isHistoryShallowed) {
-                    sb.append("+").append(featureCount)
+                if (branchCommitCount > 0 && !isHistoryShallowed) {
+                    sb.append("+").append(branchCommitCount)
                 }
-                if (localChanges != NO_CHANGES) {
+
+                if (localChangesCount > 0) {
                     if (addSnapshot) {
                         sb.append("-SNAPSHOT")
                     }
@@ -304,7 +289,8 @@ public open class GitVersioner internal constructor(
                         sb.append("(").append(localChanges).append(")")
                     }
                 }
-                return@formatter sb.toString()*/
+
+                return@formatter sb.toString()
             }
         }
 

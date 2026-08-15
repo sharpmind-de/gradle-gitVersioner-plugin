@@ -1,12 +1,15 @@
 # GitVersioner for Gradle
 
-A fork of the original project to keep it updated and maintained.
+An independently maintained continuation of [Pascal Welsch's original GitVersioner plugin](https://github.com/passsy/gradle-gitVersioner-plugin), now maintained by [SharpMind](https://github.com/sharpmind-de).
+
+The upstream project was archived in November 2024. This standalone project preserves its history and continues development under the SharpMind plugin ID `de.sharpmind.gitversioner`.
 
 ## Overview
 
 GitVersioner simplifies versioning for Gradle projects, inspired by SVN's revision numbering. In Git, branching complicates linear revision tracking, but GitVersioner restores simplicity while embracing Git's flexibility.
 
 ## Features
+
 - Automatically generates version codes and names based on:
   - The number of commits in the base branch.
   - The number of commits in the current feature branch.
@@ -32,26 +35,25 @@ nothing to commit, working tree clean
 # Output
 git versionName: 3
 
-% git checkout dev
-Switched to branch 'dev'
+% git checkout -b dev
+Switched to a new branch 'dev'
 
-% git status
-On branch dev
-nothing to commit, working tree clean
+# After two commits on dev
 
 ./gradlew generateGitVersionName
 
 # Output
-git versionName: 3.dev-358.1
+git versionName: 3-dev+2
 ```
 
-#### Explanation:
+#### Explanation
 
 - **Base branch** (`main`) has 3 commits.
-- **Feature branch** (`dev`) has 358 additional commits.
-- There is **1 uncommitted change** in `dev`.
+- **Feature branch** (`dev`) has 2 additional commits.
+- The default formatter adds the sanitized branch name and feature-branch commit count.
+- Uncommitted changes add a suffix such as `-SNAPSHOT(1 +1 -0)`.
 
-The generated version `3.dev-358.1` follows the default version formatter.
+The generated version `3-dev+2` follows the default version formatter.
 
 ### Configuring the Version Formatter
 
@@ -64,16 +66,31 @@ The default formatter generates versions based on specific rules, but you can co
 **build.gradle**
 ```groovy
 plugins {
-    id 'de.sharpmind.gitversioner' version '0.6.8'
+    id 'de.sharpmind.gitversioner' version '0.7.0'
 }
 ```
 
 **build.gradle.kts**
 ```kotlin
 plugins {
-    id("de.sharpmind.gitversioner") version "0.6.8"
+    id("de.sharpmind.gitversioner") version "0.7.0"
 }
 ```
+
+Version `0.7.0` is published on the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/de.sharpmind.gitversioner/0.7.0).
+
+### Compatibility
+
+The current project build is verified with the following toolchain:
+
+| Component | Version |
+| --- | --- |
+| GitVersioner | `0.7.0` |
+| Gradle Wrapper | `9.3.1` |
+| Kotlin | `2.3.10` |
+| Java toolchain | `17` |
+
+These versions describe the maintained build baseline. Compatibility with other Gradle or Java versions should be verified before production use.
 
 ### Full Configuration
 
@@ -82,7 +99,7 @@ plugins {
 import de.sharpmind.gitversioner.GitVersioner
 
 plugins {
-    id 'de.sharpmind.gitversioner' version '0.6.8'
+    id 'de.sharpmind.gitversioner' version '0.7.0'
 }
 
 configure(GitVersioner) {
@@ -100,7 +117,7 @@ configure(GitVersioner) {
         def branchCommitCount = v.featureBranchCommitCount
         def localChangesCount = v.localChanges.filesChanged
 
-        if (v.branchName?.let { v.baseBranch.compareTo(it) } != 0) {
+        if (v.branchName != v.baseBranch) {
             sb.append(".").append(v.branchName).append("-").append(branchCommitCount)
         }
 
@@ -121,7 +138,7 @@ configure(GitVersioner) {
 import de.sharpmind.gitversioner.GitVersioner
 
 plugins {
-    id("de.sharpmind.gitversioner") version "0.6.8"
+    id("de.sharpmind.gitversioner") version "0.7.0"
 }
 
 configure<GitVersioner> {
@@ -221,6 +238,22 @@ object GitInfoService {
 
 That helps to access the version properties in your application code.
 
+## Maintenance and Support
+
+SharpMind maintains this continuation independently from the archived upstream project. Bug reports, compatibility findings, and focused pull requests are welcome in [GitHub Issues](https://github.com/sharpmind-de/gradle-gitVersioner-plugin/issues).
+
+When reporting a problem, include the GitVersioner, Gradle, Java, and Kotlin versions, along with a minimal reproduction when possible.
+
+## Releasing
+
+For maintainers:
+
+1. Update `version` in `gradle.properties` and the documented plugin version in this README.
+2. Run `./gradlew clean check`.
+3. Commit the release change and create the corresponding Git tag.
+4. Publish with `./gradlew publishPlugins` using configured Gradle Plugin Portal credentials.
+5. Push the tag and create the GitHub release notes.
+
 ## License
 
 ```
@@ -241,9 +274,9 @@ limitations under the License.
 
 ## Acknowledgements
 
-This project was forked from [Pascal Welsch's GitVersioner](https://github.com/passsy/gradle-gitVersioner-plugin).
+This project derives from [Pascal Welsch's GitVersioner](https://github.com/passsy/gradle-gitVersioner-plugin) and retains the original Git history and attribution.
 
-This repository has been archived by the owner on Nov 19, 2024. It is now read-only.
+The original repository was archived by its owner on November 19, 2024, and is read-only. This SharpMind repository is the independently maintained continuation.
 
 ### Original License
 

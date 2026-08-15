@@ -1,42 +1,34 @@
 package de.sharpmind.gitversioner
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Internal
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.util.Properties
 
-internal open class GenerateGitVersionName : DefaultTask() {
+internal abstract class GenerateGitVersionName : DefaultTask() {
 
-    @Internal
-    lateinit var gitVersioner: GitVersioner
+    @get:Input
+    abstract val versionProperties: MapProperty<String, String>
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
 
     @TaskAction
     fun generate() {
-        val file = project.file("${project.buildDir}/gitversioner/version.properties")
+        val file = outputFile.get().asFile
         file.parentFile.mkdirs()
 
         val properties = Properties().apply {
-            with(gitVersioner) {
-                putWhenSet("versionCode", versionCode)
-                putWhenSet("versionName", versionName)
-                putWhenSet("baseBranch", baseBranch)
-                putWhenSet("branchName", branchName)
-                putWhenSet("currentSha1", currentSha1)
-                putWhenSet("baseBranchCommitCount", baseBranchCommitCount)
-                putWhenSet("featureBranchCommitCount", featureBranchCommitCount)
-                putWhenSet("timeComponent", timeComponent)
-                putWhenSet("yearFactor", yearFactor)
-                putWhenSet("localChanges", localChanges)
-            }
+            putAll(versionProperties.get())
         }
 
-        properties.store(file.writer(), "gitVersioner plugin - extracted data from git repository")
-        project.logger.lifecycle("git versionName: ${gitVersioner.versionName}")
-        project.logger.lifecycle("gitVersion output: $file")
+        file.writer().use {
+            properties.store(it, "gitVersioner plugin - extracted data from git repository")
+        }
+        logger.lifecycle("git versionName: ${versionProperties.get()["versionName"]}")
+        logger.lifecycle("gitVersion output: $file")
     }
-}
-
-private fun Properties.putWhenSet(key: String, value: Any?) {
-    if (value == null) return
-    put(key, value.toString())
 }

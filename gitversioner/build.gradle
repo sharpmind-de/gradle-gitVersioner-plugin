@@ -94,13 +94,13 @@ publishing {
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
                 developers {
                     developer {
-                        id = 'stolzem'
-                        name = 'Marco Stolze'
+                        id = 'sharpmind'
+                        name = 'SharpMind'
                         email = 'marco@sharpmind.de'
                     }
                 }

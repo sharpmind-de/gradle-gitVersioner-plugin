@@ -34,14 +34,18 @@ dependencies {
 
 // Task to generate Javadoc JAR
 tasks.register('javadocJar', Jar) {
-    archiveClassifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc
 }
 
 // Task to generate sources JAR
 tasks.register('sourcesJar', Jar) {
-    archiveClassifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('javadocJar'), tasks.named('sourcesJar')
 }
 
 // Task to save version to resources
@@ -68,10 +72,6 @@ gradlePlugin {
     }
 
     automatedPublishing = true
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
 }
 
 /*
